@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: add-task
+  name: todo-add-tasks-api
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
-    app: add-task
+    app: todo-add-tasks-api
   ports:
-  - port: 80
-    targetPort: 8000
+    - port: 80
+      targetPort: 8000
