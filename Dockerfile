@@ -1,26 +1,27 @@
-# Use the official Python image as the base image
-FROM python:3.9
+# Base image
+FROM python:3.11-slim
 
-# Set the working directory in the container
-WORKDIR /app
+# Install prerequisites and ODBC libraries
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      curl gnupg2 \
+      unixodbc \
+      unixodbc-dev \
+      libodbc1 \  # ensure libodbc.so.2 is available
+      # other dependencies you need ...
+      && rm -rf /var/lib/apt/lists/*
 
-# Copy the application files into the container
-COPY . .
+# Optional: create symlink if the library is installed under another name
+RUN if [ ! -e /usr/lib/x86_64-linux-gnu/libodbc.so.2 ] && [ -e /usr/lib/x86_64-linux-gnu/libodbc.so ]; then \
+      ln -s /usr/lib/x86_64-linux-gnu/libodbc.so /usr/lib/x86_64-linux-gnu/libodbc.so.2; \
+    fi
 
-# Install required dependencies
-RUN apt-get update && apt-get install -y curl gnupg2 unixodbc unixodbc-dev
-
-# Add Microsoft’s official GPG key and repository (for Debian 12 / Bookworm)
+# Install Microsoft SQL Server driver if needed
 RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" \
-    > /etc/apt/sources.list.d/mssql-release.list
+    > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql18 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Microsoft ODBC driver for SQL Server
-RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose port 8000 and start the FastAPI app
-EXPOSE 8000
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copy code, install Python deps, and run your app as before…
