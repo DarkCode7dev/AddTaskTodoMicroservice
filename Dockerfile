@@ -19,7 +19,7 @@ RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Expose port 8000 and start the FastAPI app
 EXPOSE 8000
