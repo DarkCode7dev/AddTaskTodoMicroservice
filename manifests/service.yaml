@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: todo-add-tasks-api
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: todo-add-tasks-api
   ports:
