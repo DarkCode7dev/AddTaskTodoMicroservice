@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: todo-add-tasks-api-ingress
 spec:
-  ingressClassName: nginx
+  ingressClassName:  azure-application-gateway
   rules:
     - host: add-task-api.dhakkan.online
       http:
